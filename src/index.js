@@ -12,14 +12,10 @@ let moduleHeader = [];
 function titleCase(str) {
   const splitStr = str.toLowerCase().split(' ');
   for (let i = 0; i < splitStr.length; i++) {
-    // You do not need to check if i is larger than splitStr length, as your for does that for you
-    // Assign it back to the array
     splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
   }
-  // Directly return the joined string
   return splitStr.join(' ');
 }
-
 
 fs.createReadStream('import.csv')
   .pipe(csv({ separator: ',', skipLines: 3 }))
@@ -33,9 +29,13 @@ fs.createReadStream('import.csv')
       const temp = results.filter((member) => member.contact_number1 === id);
       results = _.remove(results, (n) => n !== temp[0]);
       const moduleName = String(titleCase(data.module_name1)).replace(/\s/g, '');
+      if (data.module_validated_date1) {
+        temp[0][`${moduleName}Validated`] = '1';
+      }
       temp[0][`${moduleName}ValidatedDate`] = data.module_validated_date1;
       temp[0][`${moduleName}ValidatedBy`] = data.Validatedbyname;
       results.push(temp[0]);
+      moduleHeader.push({ id: `${moduleName}Validated`, title: `${moduleName}Validated` });
       moduleHeader.push({ id: `${moduleName}ValidatedDate`, title: `${moduleName}ValidatedDate` });
       moduleHeader.push({ id: `${moduleName}ValidatedBy`, title: `${moduleName}ValidatedBy` });
     }
@@ -52,7 +52,7 @@ fs.createReadStream('import.csv')
       { id: 'wood_received1', title: 'WoodbadgeDate' },
       { id: 'County1', title: 'County' },
       { id: 'County_Section1', title: 'CountySection' },
-      { id: 'District1', title: 'DistrictSection' },
+      { id: 'District1', title: 'District' },
       { id: 'Scout_Group1', title: 'Group' },
       { id: 'Scout_Group_Section1', title: 'GroupSection' },
     ];
