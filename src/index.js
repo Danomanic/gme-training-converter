@@ -32,6 +32,9 @@ fs.createReadStream('import.csv')
       if (data.module_validated_date1) {
         temp[0][`${moduleName}Validated`] = '1';
       }
+      if (temp[0].Scout_Group1 === '') {
+        temp[0].Scout_Group1 = data.Scout_Group1;
+      }
       temp[0][`${moduleName}ValidatedDate`] = data.module_validated_date1;
       temp[0][`${moduleName}ValidatedBy`] = data.Validatedbyname;
       results.push(temp[0]);
