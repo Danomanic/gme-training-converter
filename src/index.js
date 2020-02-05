@@ -13,6 +13,23 @@ const port = process.env.PORT || 3000;
 const { log } = console;
 
 let results = [];
+const moduleHeaders = [];
+const memberHeaders = [
+  { id: 'contact_number1', title: 'ID' },
+  { id: 'forenames1', title: 'Name' },
+  { id: 'surname1', title: 'Surname' },
+  { id: 'Email1', title: 'Email' },
+  { id: 'MRole1', title: 'Role' },
+  { id: 'RoleStatus1', title: 'RoleStatus' },
+  { id: 'Role_Start_Date1', title: 'RoleStartDate' },
+  { id: 'review_date1', title: 'RoleReviewDate' },
+  { id: 'wood_received1', title: 'WoodbadgeDate' },
+  { id: 'County1', title: 'County' },
+  { id: 'County_Section1', title: 'CountySection' },
+  { id: 'District1', title: 'District' },
+  { id: 'Scout_Group1', title: 'Group' },
+  { id: 'Scout_Group_Section1', title: 'GroupSection' },
+];
 
 let moduleHeader = [];
 
@@ -25,6 +42,7 @@ app.use(fileUpload({
 
 function titleCase(str) {
   const splitStr = str.toLowerCase().split(' ');
+  // eslint-disable-next-line no-plusplus
   for (let i = 0; i < splitStr.length; i++) {
     splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
   }
