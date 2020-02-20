@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-param-reassign */
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const csv = require('csv-parser');
 const fs = require('fs');
@@ -45,7 +47,7 @@ async function doConvert(res) {
     .on('data', (data) => {
       const id = data.contact_number1;
 
-      const tempRoles = new Set();
+      let tempRoles = new Set();
 
       if ((results.filter((member) => member.contact_number1 === id).length) === 0) {
         // New Member
@@ -64,7 +66,7 @@ async function doConvert(res) {
         results = _.remove(results, (n) => n !== temp[0]);
 
         // Hack: Push role to set
-        const tempRoles = new Set(temp[0].tempRoles);
+        tempRoles = new Set(temp[0].tempRoles);
 
         if (!tempRoles.has(data.MRole1)) {
           temp[0].roles = temp[0].roles.concat(',', data.MRole1);
