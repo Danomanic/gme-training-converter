@@ -72,10 +72,30 @@ async function doConvert(res) {
         // Remove it from the results array.
         results = _.remove(results, (n) => n !== temp[0]);
 
-        // Push role to set
+        // Hack: Push role to set
         let roles = new Set(temp[0].RolesCombined.split(','));
         roles.add(`${data.MRole1} [${data.RoleStatus1}]`);
         temp[0].RolesCombined = Array.from(roles).join();
+
+        // Hack: Woodbadge
+        if (temp[0].wood_received1 === '') {
+          temp[0].wood_received1 = data.wood_received1;
+        }
+
+        // Hack: Force a Email.
+        if (temp[0].Email1 === '') {
+          temp[0].Email1 = data.Email1;
+        }
+
+        // Hack: Force a District.
+        if (temp[0].District1 === '') {
+          temp[0].District1 = data.District1;
+        }
+
+        // Hack: Force a Group Name.
+        if (temp[0].Scout_Group1 === '') {
+          temp[0].Scout_Group1 = data.Scout_Group1;
+        }
 
         // Get the Module Name
         const moduleName = String(titleCase(data.module_name1)).replace(/\s/g, '');
@@ -83,11 +103,6 @@ async function doConvert(res) {
         // Hack: If validated, set to 1 (true)
         if (data.module_validated_date1) {
           temp[0][`${moduleName}Validated`] = '1';
-        }
-
-        // Hack: Force a Group Name.
-        if (temp[0].Scout_Group1 === '') {
-          temp[0].Scout_Group1 = data.Scout_Group1;
         }
 
         // Push the updated record to results.
