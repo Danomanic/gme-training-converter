@@ -13,27 +13,10 @@ const port = process.env.PORT || 3000;
 const { log } = console;
 
 let results = [];
-const moduleHeaders = [];
-const memberHeaders = [
-  { id: 'contact_number1', title: 'ID' },
-  { id: 'forenames1', title: 'Name' },
-  { id: 'surname1', title: 'Surname' },
-  { id: 'Email1', title: 'Email' },
-  { id: 'MRole1', title: 'Role' },
-  { id: 'RoleStatus1', title: 'RoleStatus' },
-  { id: 'Role_Start_Date1', title: 'RoleStartDate' },
-  { id: 'review_date1', title: 'RoleReviewDate' },
-  { id: 'wood_received1', title: 'WoodbadgeDate' },
-  { id: 'County1', title: 'County' },
-  { id: 'County_Section1', title: 'CountySection' },
-  { id: 'District1', title: 'District' },
-  { id: 'Scout_Group1', title: 'Group' },
-  { id: 'Scout_Group_Section1', title: 'GroupSection' },
-];
 
 let moduleHeader = [];
 
-// default options
+// Define upload options.
 app.use(fileUpload({
   limits: { fileSize: 50 * 1024 * 1024 },
   safeFileNames: true,
@@ -49,7 +32,7 @@ function titleCase(str) {
   return splitStr.join(' ');
 }
 
-// Appends the row with module name Coumnss.
+// Appends the row with module name Columns.
 function createModuleHeader(moduleName) {
   moduleHeader.push({ id: `${moduleName}Validated`, title: `${moduleName}Validated` });
   moduleHeader.push({ id: `${moduleName}ValidatedDate`, title: `${moduleName}ValidatedDate` });
@@ -73,7 +56,7 @@ async function doConvert(res) {
         results = _.remove(results, (n) => n !== temp[0]);
 
         // Hack: Push role to set
-        let roles = new Set(temp[0].RolesCombined.split(','));
+        const roles = new Set(temp[0].RolesCombined.split(','));
         roles.add(`${data.MRole1} [${data.RoleStatus1}]`);
         temp[0].RolesCombined = Array.from(roles).join();
 
