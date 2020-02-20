@@ -44,9 +44,17 @@ async function doConvert(res) {
     .pipe(csv({ separator: ',', skipLines: 3 }))
     .on('data', (data) => {
       const id = data.contact_number1;
+
+      const tempRoles = new Set();
+
       if ((results.filter((member) => member.contact_number1 === id).length) === 0) {
         // New Member
-        data.RolesCombined = `${data.MRole1} [${data.RoleStatus1}]`;
+        tempRoles.add(data.MRole1);
+        data.roles = data.MRole1;
+        data.rolesStatus = data.RoleStatus1;
+        data.rolesStartDate = data.Role_Start_Date1;
+        data.rolesReviewDate = data.review_date1;
+        data.tempRoles = tempRoles;
         results.push(data);
       } else {
         // Get the current record to be updated.
@@ -56,9 +64,17 @@ async function doConvert(res) {
         results = _.remove(results, (n) => n !== temp[0]);
 
         // Hack: Push role to set
-        const roles = new Set(temp[0].RolesCombined.split(','));
-        roles.add(`${data.MRole1} [${data.RoleStatus1}]`);
-        temp[0].RolesCombined = Array.from(roles).join();
+        const tempRoles = new Set(temp[0].tempRoles);
+
+        if (!tempRoles.has(data.MRole1)) {
+          temp[0].roles = temp[0].roles.concat(',', data.MRole1);
+          temp[0].rolesStatus = temp[0].rolesStatus.concat(',', data.RoleStatus1);
+          temp[0].rolesStartDate = temp[0].rolesStartDate.concat(',', data.Role_Start_Date1);
+          temp[0].rolesReviewDate = temp[0].rolesReviewDate.concat(',', data.review_date1);
+          tempRoles.add(data.MRole1);
+        }
+
+        temp[0].tempRoles = new Set(tempRoles);
 
         // Hack: Woodbadge
         if (temp[0].wood_received1 === '') {
@@ -91,6 +107,7 @@ async function doConvert(res) {
         // Push the updated record to results.
         temp[0][`${moduleName}ValidatedDate`] = data.module_validated_date1;
         temp[0][`${moduleName}ValidatedBy`] = data.Validatedbyname;
+
         results.push(temp[0]);
 
         // Add Module Name to the moduleHeaders
@@ -99,12 +116,14 @@ async function doConvert(res) {
     })
     .on('end', () => {
       let memberHeader = [
+        { id: 'contact_number1', title: 'ID' },
         { id: 'forenames1', title: 'Name' },
         { id: 'surname1', title: 'Surname' },
         { id: 'Email1', title: 'Email' },
-        { id: 'RolesCombined', title: 'Roles' },
-        { id: 'Role_Start_Date1', title: 'RoleStartDate' },
-        { id: 'review_date1', title: 'RoleReviewDate' },
+        { id: 'roles', title: 'Roles' },
+        { id: 'rolesStatus', title: 'RolesStatus' },
+        { id: 'rolesStartDate', title: 'RolesStartDate' },
+        { id: 'rolesReviewDate', title: 'RolesReviewDate' },
         { id: 'wood_received1', title: 'WoodbadgeDate' },
         { id: 'County1', title: 'County' },
         { id: 'County_Section1', title: 'CountySection' },
