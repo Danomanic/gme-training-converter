@@ -49,6 +49,13 @@ function titleCase(str) {
   return splitStr.join(' ');
 }
 
+// Appends the row with module name Coumnss.
+function createModuleHeader(moduleName) {
+  moduleHeader.push({ id: `${moduleName}Validated`, title: `${moduleName}Validated` });
+  moduleHeader.push({ id: `${moduleName}ValidatedDate`, title: `${moduleName}ValidatedDate` });
+  moduleHeader.push({ id: `${moduleName}ValidatedBy`, title: `${moduleName}ValidatedBy` });
+}
+
 async function doConvert(res) {
   await fs.createReadStream(`${__dirname}/import.csv`)
     .pipe(csv({ separator: ',', skipLines: 3 }))
@@ -56,24 +63,40 @@ async function doConvert(res) {
       const id = data.contact_number1;
       if ((results.filter((member) => member.contact_number1 === id).length) === 0) {
         // New Member
+        data.RolesCombined = `${data.MRole1} [${data.RoleStatus1}]`;
         results.push(data);
       } else {
-        // New Module
+        // Get the current record to be updated.
         const temp = results.filter((member) => member.contact_number1 === id);
+
+        // Remove it from the results array.
         results = _.remove(results, (n) => n !== temp[0]);
+
+        // Push role to set
+        let roles = new Set(temp[0].RolesCombined.split(','));
+        roles.add(`${data.MRole1} [${data.RoleStatus1}]`);
+        temp[0].RolesCombined = Array.from(roles).join();
+
+        // Get the Module Name
         const moduleName = String(titleCase(data.module_name1)).replace(/\s/g, '');
+
+        // Hack: If validated, set to 1 (true)
         if (data.module_validated_date1) {
           temp[0][`${moduleName}Validated`] = '1';
         }
+
+        // Hack: Force a Group Name.
         if (temp[0].Scout_Group1 === '') {
           temp[0].Scout_Group1 = data.Scout_Group1;
         }
+
+        // Push the updated record to results.
         temp[0][`${moduleName}ValidatedDate`] = data.module_validated_date1;
         temp[0][`${moduleName}ValidatedBy`] = data.Validatedbyname;
         results.push(temp[0]);
-        moduleHeader.push({ id: `${moduleName}Validated`, title: `${moduleName}Validated` });
-        moduleHeader.push({ id: `${moduleName}ValidatedDate`, title: `${moduleName}ValidatedDate` });
-        moduleHeader.push({ id: `${moduleName}ValidatedBy`, title: `${moduleName}ValidatedBy` });
+
+        // Add Module Name to the moduleHeaders
+        createModuleHeader(moduleName);
       }
     })
     .on('end', () => {
@@ -81,8 +104,7 @@ async function doConvert(res) {
         { id: 'forenames1', title: 'Name' },
         { id: 'surname1', title: 'Surname' },
         { id: 'Email1', title: 'Email' },
-        { id: 'MRole1', title: 'Role' },
-        { id: 'RoleStatus1', title: 'RoleStatus' },
+        { id: 'RolesCombined', title: 'Roles' },
         { id: 'Role_Start_Date1', title: 'RoleStartDate' },
         { id: 'review_date1', title: 'RoleReviewDate' },
         { id: 'wood_received1', title: 'WoodbadgeDate' },
@@ -135,4 +157,4 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(`${__dirname}/public/index.html`));
 });
 
-app.listen(port, () => log(`Example app listening on port ${port}!`));
+app.listen(port, () => log(`Listening on port ${port}!`));
